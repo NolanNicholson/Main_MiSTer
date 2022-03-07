@@ -1574,6 +1574,8 @@ static uint32_t autofire[NUMPLAYERS] = {};
 static uint32_t autofirecodes[NUMPLAYERS][BTN_NUM] = {};
 static int af_delay[NUMPLAYERS] = {};
 
+static uint32_t crtgun_timeout[NUMDEV] = {};
+
 static unsigned char mouse_btn = 0; //emulated mouse
 static unsigned char mice_btn = 0;
 static int mouse_req = 0;
@@ -4541,7 +4543,7 @@ int input_test(int getchar)
 									}
 								}
 
-								if (ev.type == EV_ABS && (input[i].quirk == QUIRK_LIGHTGUN_CRT || input[i].quirk == QUIRK_LIGHTGUN))
+								if (ev.type == EV_ABS && input[i].quirk == QUIRK_LIGHTGUN)
 								{
 									menu_lightgun_cb(i, ev.type, ev.code, ev.value);
 
@@ -4554,6 +4556,57 @@ int input_test(int getchar)
 									{
 										absinfo.minimum = input[i].guncal[0];
 										absinfo.maximum = input[i].guncal[1];
+									}
+								}
+
+								if (ev.type == EV_ABS && input[i].quirk == QUIRK_LIGHTGUN_CRT)
+								{
+									menu_lightgun_cb(i, ev.type, ev.code, ev.value);
+
+									if (ev.code == ABS_X)
+									{
+										absinfo.minimum = input[i].guncal[2];
+										absinfo.maximum = input[i].guncal[3];
+
+										// Handle gun going off-screen
+										// The GunCon 2 (or at least its driver) will more reliably report
+										// an out-of-screen value for X than for Y, so X is used here
+										if (ev.value < absinfo.minimum || ev.value > absinfo.maximum)
+										{
+                                                                                        if (!crtgun_timeout[i]) crtgun_timeout[i] = GetTimer(100);
+										}
+										else
+										{
+                                                                                        crtgun_timeout[i] = 0;
+											input[i].lastx = ev.value;
+										}
+
+                                                                                // For the window between losing the gun signal and the timer
+                                                                                // running out, report the last on-screen coordinate
+                                                                                if (crtgun_timeout[i] && !CheckTimer(crtgun_timeout[i]))
+										{
+											ev.value = input[i].lastx;
+										}
+									}
+									else if (ev.code == ABS_Y)
+									{
+										absinfo.minimum = input[i].guncal[0];
+										absinfo.maximum = input[i].guncal[1];
+
+										// Handle gun going off-screen
+                                                                                if (crtgun_timeout[i])
+										{
+                                                                                        // For the window between losing the gun signal and the timer
+                                                                                        // running out, report the last on-screen coordinate
+                                                                                        if (!CheckTimer(crtgun_timeout[i]))
+                                                                                        {
+												ev.value = input[i].lasty;
+											}
+										}
+										else
+										{
+											input[i].lasty = ev.value;
+										}
 									}
 								}
 

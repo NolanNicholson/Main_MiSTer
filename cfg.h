@@ -69,6 +69,9 @@ typedef struct {
 	char vfilter_vertical_default[1023];
 	char vfilter_scanlines_default[1023];
 	char shmask_default[1023];
+	uint8_t rumble;
+	uint8_t wheel_force;
+	uint16_t wheel_range;
 } cfg_t;
 
 extern cfg_t cfg;
@@ -76,5 +79,6 @@ extern cfg_t cfg;
 //// functions ////
 void cfg_parse();
 const char* cfg_get_name(uint8_t alt);
+bool cfg_has_video_sections();
 
 #endif // __CFG_H__

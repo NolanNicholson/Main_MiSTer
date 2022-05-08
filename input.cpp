@@ -4569,8 +4569,8 @@ int input_test(int getchar)
 										absinfo.maximum = input[i].guncal[3];
 
 										// Handle gun going off-screen
-										// The GunCon 2 (or at least its driver) will more reliably report
-										// an out-of-screen value for X than for Y, so X is used here
+										// The GunCon 1 and 2 both report out-of-screen x values
+                                                                                // more reliably than Y values, so X is used here.
 										if (ev.value < absinfo.minimum || ev.value > absinfo.maximum)
 										{
                                                                                         if (!crtgun_timeout[i]) crtgun_timeout[i] = GetTimer(100);

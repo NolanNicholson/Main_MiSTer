@@ -4894,20 +4894,19 @@ int input_test(int getchar)
 
 										// Handle gun going off-screen
 										// The GunCon 1 and 2 both report out-of-screen x values
-                                                                                // more reliably than Y values, so X is used here.
+										// more reliably than Y values, so X is used here.
 										if (ev.value < absinfo.minimum || ev.value > absinfo.maximum)
 										{
-                                                                                        if (!crtgun_timeout[i]) crtgun_timeout[i] = GetTimer(100);
+											if (!crtgun_timeout[i]) crtgun_timeout[i] = GetTimer(50);
 										}
 										else
 										{
-                                                                                        crtgun_timeout[i] = 0;
+											crtgun_timeout[i] = 0;
 											input[i].lastx = ev.value;
 										}
-
-                                                                                // For the window between losing the gun signal and the timer
-                                                                                // running out, report the last on-screen coordinate
-                                                                                if (crtgun_timeout[i] && !CheckTimer(crtgun_timeout[i]))
+										// For the window between losing the gun signal and the timer
+										// running out, report the last on-screen coordinate
+										if (crtgun_timeout[i] && !CheckTimer(crtgun_timeout[i]))
 										{
 											ev.value = input[i].lastx;
 										}
